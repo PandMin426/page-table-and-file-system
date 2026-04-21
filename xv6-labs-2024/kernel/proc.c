@@ -213,8 +213,19 @@ proc_pagetable(struct proc *p)
     return 0;
   }
 
+	// map dia chi ao usyscall toi dia chi vat ly p->usyscall
+	// quyen truy cap: PTE_R (Read) vaf PTE_U (User)
+	if(mappages(pagetable, USYSCALL, PGSIZE, (uint64)(p->usyscall),
+			 PTE_R| PTE_U) < 0){
+	uvmunmap(pagetable, TRAMPOLINE, 1, 0);
+	uvmunmap(pagetable, TRAPFRAME, 1, 0);
+	uvmfree(pagetable, 0);
+	return 0;
+
+	}
+
   return pagetable;
-}
+
 
 // Free a process's page table, and free the
 // physical memory it refers to.

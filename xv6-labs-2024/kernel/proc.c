@@ -168,6 +168,12 @@ freeproc(struct proc *p)
 {
   if(p->trapframe)
     kfree((void*)p->trapframe);
+  // giai phong trang bo nho vat ly cua usyscall
+	if(p->usyscall){
+		kfree((void*)p->usyscall);
+	}
+	p->usyscall = 0;
+  
   p->trapframe = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
@@ -232,6 +238,9 @@ proc_pagetable(struct proc *p)
 void
 proc_freepagetable(pagetable_t pagetable, uint64 sz)
 {
+	// unmap USYSCALL, khong giai phong bo nho vat ly tai day
+	// (do_free = 0)
+	uvmunmap(pagetable, USYSCALL, 1, 0);
   uvmunmap(pagetable, TRAMPOLINE, 1, 0);
   uvmunmap(pagetable, TRAPFRAME, 1, 0);
   uvmfree(pagetable, sz);

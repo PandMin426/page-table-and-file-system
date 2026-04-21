@@ -1,6 +1,7 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
+#include "kernel/riscv.h"
 #include "kernel/memlayout.h" // Để lấy định nghĩa USYSCALL và struct usyscall
 
 int main(void) {

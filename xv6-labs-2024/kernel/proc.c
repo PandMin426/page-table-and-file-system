@@ -132,6 +132,17 @@ found:
     return 0;
   }
 
+	// cap phat 1 page cho usyscall
+	if((p->usyscall = (struct usyscall *)kalloc()) == 0){
+		freeproc(p);
+		release(&p->lock);
+		return 0;
+	}
+
+	// khoi tao gia tri pid
+	p->usyscall->pid= p->pid;
+
+
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){

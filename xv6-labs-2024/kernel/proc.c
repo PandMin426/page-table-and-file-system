@@ -133,14 +133,14 @@ found:
   }
 
 	// cap phat 1 page cho usyscall
-	if((p->usyscall = (struct usyscall *)kalloc()) == 0){
-		freeproc(p);
-		release(&p->lock);
-		return 0;
-	}
+  if((p->usyscall = (struct usyscall *)kalloc()) == 0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
 
-	// khoi tao gia tri pid
-	p->usyscall->pid= p->pid;
+  // khoi tao gia tri pid
+  p->usyscall->pid= p->pid;
 
 
   // An empty user page table.
@@ -169,10 +169,10 @@ freeproc(struct proc *p)
   if(p->trapframe)
     kfree((void*)p->trapframe);
   // giai phong trang bo nho vat ly cua usyscall
-	if(p->usyscall){
-		kfree((void*)p->usyscall);
-	}
-	p->usyscall = 0;
+  if(p->usyscall){
+    kfree((void*)p->usyscall);
+  }
+  p->usyscall = 0;
   
   p->trapframe = 0;
   if(p->pagetable)
@@ -221,17 +221,17 @@ proc_pagetable(struct proc *p)
 
 	// map dia chi ao usyscall toi dia chi vat ly p->usyscall
 	// quyen truy cap: PTE_R (Read) vaf PTE_U (User)
-	if(mappages(pagetable, USYSCALL, PGSIZE, (uint64)(p->usyscall),
-			 PTE_R| PTE_U) < 0){
-	uvmunmap(pagetable, TRAMPOLINE, 1, 0);
-	uvmunmap(pagetable, TRAPFRAME, 1, 0);
-	uvmfree(pagetable, 0);
-	return 0;
+  if(mappages(pagetable, USYSCALL, PGSIZE, (uint64)(p->usyscall),
+  		 PTE_R| PTE_U) < 0){
+  uvmunmap(pagetable, TRAMPOLINE, 1, 0);
+  uvmunmap(pagetable, TRAPFRAME, 1, 0);
+  uvmfree(pagetable, 0);
+  return 0;
 
-	}
+  }
 
   return pagetable;
-
+}
 
 // Free a process's page table, and free the
 // physical memory it refers to.
@@ -240,7 +240,7 @@ proc_freepagetable(pagetable_t pagetable, uint64 sz)
 {
 	// unmap USYSCALL, khong giai phong bo nho vat ly tai day
 	// (do_free = 0)
-	uvmunmap(pagetable, USYSCALL, 1, 0);
+  uvmunmap(pagetable, USYSCALL, 1, 0);
   uvmunmap(pagetable, TRAMPOLINE, 1, 0);
   uvmunmap(pagetable, TRAPFRAME, 1, 0);
   uvmfree(pagetable, sz);

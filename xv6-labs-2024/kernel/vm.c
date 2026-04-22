@@ -449,3 +449,42 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
     return -1;
   }
 }
+
+// Hàm bổ trợ để in các dấu chấm dựa trên cấp độ (level)
+void print_dots(int level) {
+  if (level == 2) printf(".. ");
+  else if (level == 1) printf(".. .. ");
+  else if (level == 0) printf(".. .. .. ");
+}
+
+// Hàm đệ quy để duyệt bảng phân trang
+void _vmprint(pagetable_t pagetable, int level) {
+  // Có 512 mục (entries) trong mỗi trang bảng phân trang
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    
+    // Kiểm tra xem mục này có hợp lệ (Valid) không
+    if(pte & PTE_V){
+      print_dots(level);
+      
+      // Lấy địa chỉ vật lý (Physical Address) từ PTE
+      uint64 pa = PTE2PA(pte);
+      
+      // ĐÃ SỬA LỖI: Thêm (void *) vào trước pte và pa để ép kiểu
+      printf("%d: pte %p pa %p\n", i, (void *)pte, (void *)pa);
+      
+      // Nếu không phải là lá (Leaf) và còn cấp thấp hơn, thì tiếp tục đệ quy
+      // Một PTE là lá nếu nó có ít nhất một trong các bit R, W, X được bật
+      if((pte & (PTE_R|PTE_W|PTE_X)) == 0 && level > 0){
+        _vmprint((pagetable_t)pa, level - 1);
+      }
+    }
+  }
+}
+
+// Hàm chính mà ta sẽ gọi từ bên ngoài
+void vmprint(pagetable_t pagetable) {
+  // ĐÃ SỬA LỖI: Thêm (void *) vào trước pagetable
+  printf("page table %p\n", (void *)pagetable);
+  _vmprint(pagetable, 2); // Bắt đầu từ cấp cao nhất (level 2)
+}

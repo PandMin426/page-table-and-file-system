@@ -196,7 +196,7 @@ UPROGS=\
 	$U/_zombie\
 	$U/_bigfile\
 	$U/_usertests\
-
+	$U/_mytest\
 
 
 
